@@ -6,6 +6,7 @@ not done.
 
 ## Metering
 
+<<<<<<< HEAD
 - [x] A billable action creates exactly one usage event, even under
       retries — deduplicated by idempotency key.
       Proof: POST /generate called twice with idempotencyKey="test-2".
@@ -31,6 +32,22 @@ not done.
       {"error":"Quota exceeded: api_call limit is 1000, current usage
       is 1000, this request needs 1 more."}
 
+=======
+- [ ] A billable action creates exactly one usage event, even under
+      retries — deduplicated by idempotency key.
+      <!-- proof: -->
+- [ ] A test proves double-counting cannot happen.
+      <!-- proof: -->
+
+## Quotas
+
+- [ ] Usage is checked against the tenant's plan; requests over the
+      limit are rejected.
+      <!-- proof: -->
+- [ ] Responses carry the correct status codes (429/402) and a message
+      explaining why.
+      <!-- proof: -->
+>>>>>>> 9e1fca23f0048e002225b8fd3f4f1323f5776e66
 
 ## Cost calculation
 
