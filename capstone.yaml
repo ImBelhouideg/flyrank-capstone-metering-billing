@@ -1,0 +1,18 @@
+name: flyrank-capstone-metering-billing
+run: docker compose up --build
+seed: docker compose exec app node scripts/seed.js
+test: npm test
+base_url: http://localhost:3000
+endpoints:
+  - method: POST
+    path: /generate
+    description: "Billable action. Records usage, enforces quota, returns cost."
+  - method: GET
+    path: /usage
+    description: "Rollup of a tenant's usage, limits, and cost this month."
+  - method: POST
+    path: /billing/checkout
+    description: "Creates a Stripe test-mode Checkout session for the Pro plan."
+  - method: POST
+    path: /webhooks/stripe
+    description: "Stripe webhook receiver — signature verified, deduplicated."
