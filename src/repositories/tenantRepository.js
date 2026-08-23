@@ -13,15 +13,16 @@ async function getTenantWithPlan(tenantId) {
   return rows[0] || null;
 }
 
-async function updatePlanAndStatus(tenantId, { plan, subscriptionStatus, stripeSubscriptionId }) {
+async function updatePlanAndStatus(tenantId, { plan, subscriptionStatus, stripeSubscriptionId, stripeCustomerId }) {
   const { rows } = await pool.query(
     `UPDATE tenants
      SET plan = COALESCE($2, plan),
          subscription_status = COALESCE($3, subscription_status),
-         stripe_subscription_id = COALESCE($4, stripe_subscription_id)
+         stripe_subscription_id = COALESCE($4, stripe_subscription_id),
+         stripe_customer_id = COALESCE($5, stripe_customer_id)
      WHERE id = $1
      RETURNING *`,
-    [tenantId, plan || null, subscriptionStatus || null, stripeSubscriptionId || null]
+    [tenantId, plan || null, subscriptionStatus || null, stripeSubscriptionId || null, stripeCustomerId || null]
   );
   return rows[0] || null;
 }

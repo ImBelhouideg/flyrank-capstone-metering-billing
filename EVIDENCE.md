@@ -6,7 +6,6 @@ not done.
 
 ## Metering
 
-<<<<<<< HEAD
 - [x] A billable action creates exactly one usage event, even under
       retries — deduplicated by idempotency key.
       Proof: POST /generate called twice with idempotencyKey="test-2".
@@ -32,22 +31,6 @@ not done.
       {"error":"Quota exceeded: api_call limit is 1000, current usage
       is 1000, this request needs 1 more."}
 
-=======
-- [ ] A billable action creates exactly one usage event, even under
-      retries — deduplicated by idempotency key.
-      <!-- proof: -->
-- [ ] A test proves double-counting cannot happen.
-      <!-- proof: -->
-
-## Quotas
-
-- [ ] Usage is checked against the tenant's plan; requests over the
-      limit are rejected.
-      <!-- proof: -->
-- [ ] Responses carry the correct status codes (429/402) and a message
-      explaining why.
-      <!-- proof: -->
->>>>>>> 9e1fca23f0048e002225b8fd3f4f1323f5776e66
 
 ## Cost calculation
 
@@ -61,11 +44,35 @@ not done.
 
 ## Stripe integration
 
-- [ ] Subscription checkout works end-to-end in Stripe test mode.
-      <!-- proof: -->
-- [ ] Webhooks verify signatures, ignore duplicate events, and update
+- [x] Subscription checkout works end-to-end in Stripe test mode.
+      Proof: completed a real Checkout via POST /billing/checkout,
+      paid with test card 4242 4242 4242 4242. Webhook
+      checkout.session.completed (evt_1U7Lf0CRHdKV8bd4eWSoVz4E, with
+      metadata.tenantId matching the tenant) was received and applied.
+      GET /usage before: plan=free, apiCalls.limit=1000. After:
+      plan=pro, apiCalls.limit=50000, subscriptionStatus=active.
+
+- [x] Webhooks verify signatures, ignore duplicate events, and update
       tenant plan/status.
-      <!-- proof: -->
+      Proof (dedup): ran `stripe events resend evt_1U7Lf0CRHdKV8bd4eWSoVz4E`
+      — Stripe delivered the same event a second time. Server responded
+      200. Verified in database:
+
+      SELECT id, type, processed_at FROM stripe_events
+      WHERE id = 'evt_1U7Lf0CRHdKV8bd4eWSoVz4E';
+
+                id              |            type            |         processed_at
+      -------------------------------+----------------------------+-------------------------------
+       evt_1U7Lf0CRHdKV8bd4eWSoVz4E | checkout.session.completed | 2026-08-22 20:37:02.318737+00
+      (1 row)
+
+      Exactly one row, timestamped from the ORIGINAL delivery — not
+      updated by the resend. Confirms the duplicate was recognized and
+      ignored, not reprocessed.     
+      Proof (signature check): sent a forged webhook with
+      `Stripe-Signature: t=1,v1=fake` -> 400 "Webhook signature
+      verification failed: No signatures found matching the expected
+      signature for payload." Nothing in the database changed.
 
 ## Data model, tests & documentation
 
