@@ -1,7 +1,7 @@
 name: flyrank-capstone-metering-billing
 run: docker compose up --build
 seed: docker compose exec app node scripts/seed.js
-test: npm test
+test: docker compose exec app npm test
 base_url: http://localhost:3000
 endpoints:
   - method: POST

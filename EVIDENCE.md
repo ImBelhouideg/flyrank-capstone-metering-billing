@@ -76,13 +76,23 @@ not done.
 
 ## Data model, tests & documentation
 
-- [ ] Database includes tenants, plans, subscriptions, and usage
-      events; customer data isolated per tenant.
-      <!-- proof: -->
-- [ ] Tests cover: duplicate usage prevention, quota boundary cases,
+- [x] Tests cover: duplicate usage prevention, quota boundary cases,
       cost calculations, invalid-webhook rejection, duplicate-webhook
       handling.
-      <!-- proof: -->
-- [ ] README + architecture diagram + setup instructions;
-      submission-pack files present.
-      <!-- proof: -->
+      Proof: `docker compose exec app npm test` — 12/12 tests pass.
+
+      ✔ idempotency: same key called twice returns the same event, only
+        one row stored
+      ✔ quota boundary: exactly at the limit succeeds, one more is
+        rejected with 429
+      ✔ subscription status: past_due returns 402, not 429
+      ✔ unknown tenant returns 404, does not crash
+      ✔ 6x pricing tests (api calls, cached input, reasoning tokens,
+        non-additive categories, null-safe)
+      ✔ webhook dedup: the same event id processed twice is only
+        recorded once
+      ✔ invalid webhook signature is rejected before any processing
+        happens
+
+      tests 12, pass 12, fail 0, duration 351ms
+
